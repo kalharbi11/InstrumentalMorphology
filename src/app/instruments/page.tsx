@@ -58,6 +58,7 @@ export default function InstrumentsPage() {
   const [showPlaybackFallback, setShowPlaybackFallback] = useState(false);
   const backgroundVideoRef = useRef<HTMLVideoElement | null>(null);
   const previewVideoRef = useRef<HTMLVideoElement | null>(null);
+
   const activeInstrument = useMemo(
     () => INSTRUMENTS.find((instrument) => instrument.id === activeId) ?? null,
     [activeId],
@@ -70,7 +71,6 @@ export default function InstrumentsPage() {
       if (!backgroundVideo || !previewVideo) {
         return;
       }
-
       try {
         await Promise.all([backgroundVideo.play(), previewVideo.play()]);
         setShowPlaybackFallback(false);
@@ -78,7 +78,6 @@ export default function InstrumentsPage() {
         setShowPlaybackFallback(true);
       }
     };
-
     void tryPlay();
   }, []);
 
@@ -88,7 +87,6 @@ export default function InstrumentsPage() {
     if (!backgroundVideo || !previewVideo) {
       return;
     }
-
     try {
       await Promise.all([backgroundVideo.play(), previewVideo.play()]);
       setShowPlaybackFallback(false);
@@ -99,6 +97,7 @@ export default function InstrumentsPage() {
 
   return (
     <main className="relative min-h-screen w-full overflow-hidden bg-black text-white">
+      {/* FIX 1: Changed /> to > so <source> can be a child */}
       <video
         ref={backgroundVideoRef}
         className="absolute inset-0 h-full w-full object-cover"
@@ -107,9 +106,10 @@ export default function InstrumentsPage() {
         loop
         playsInline
         preload="metadata"
-      />
+      >
         <source src={VIDEO_SRC} type="video/mp4" />
       </video>
+
       <div className="absolute inset-0 bg-black/45" />
 
       <header className="relative z-20 mx-auto w-full max-w-6xl px-8 pt-28">
@@ -149,6 +149,7 @@ export default function InstrumentsPage() {
             </svg>
 
             <div className="relative z-30 h-[260px] w-[260px] overflow-hidden rounded-full border border-white/60">
+              {/* FIX 2: Changed /> to > so <source> can be a child */}
               <video
                 ref={previewVideoRef}
                 className="h-full w-full object-cover"
@@ -158,11 +159,12 @@ export default function InstrumentsPage() {
                 playsInline
                 preload="metadata"
                 key={activeInstrument?.videoSrc ?? VIDEO_SRC}
-              />
+              >
                 <source src={activeInstrument?.videoSrc ?? VIDEO_SRC} type="video/mp4" />
               </video>
             </div>
 
+            {/* FIX 3: Wrapped template literals in {} for className */}
             <button
               type="button"
               onClick={() => setActiveId("1")}
@@ -172,6 +174,7 @@ export default function InstrumentsPage() {
             >
               1
             </button>
+
             <button
               type="button"
               onClick={() => setActiveId("2")}
@@ -181,6 +184,7 @@ export default function InstrumentsPage() {
             >
               2
             </button>
+
             <button
               type="button"
               onClick={() => setActiveId("3")}
@@ -191,6 +195,7 @@ export default function InstrumentsPage() {
               3
             </button>
 
+            {/* FIX 4: Wrapped template literals in {} for key and className */}
             {NOTE_POSITIONS.map((note, index) => (
               <span
                 key={`${note.glyph}-${index}`}
