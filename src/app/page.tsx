@@ -1,38 +1,265 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useMemo, useRef, useState } from "react";
+
+const VIDEO_SRC = "/assets/video/MVI_9910.mp4";
+
+const INSTRUMENTS = [
+  {
+    id: "1",
+    title: "Daphnia Light Field",
+    summary:
+      "A tank-based instrument where Daphnia respond to moving light fields that shape swarm-driven sound.",
+    href: "/instruments/daphnia",
+    videoSrc: VIDEO_SRC,
+  },
+  {
+    id: "2",
+    title: "Shrimp Attention System",
+    summary:
+      "A vision instrument tracking cherry shrimp proximity to floating rocks and translating their attention into sound.",
+    href: "/instruments/cherry-shrimp",
+    videoSrc: VIDEO_SRC,
+  },
+  {
+    id: "3",
+    title: "Ecosystem IR Instrument",
+    summary:
+      "A multi-species tank where fish, shrimp, and algae trigger sound by interrupting infrared beams.",
+    href: "/instruments/ecosystem",
+    videoSrc: VIDEO_SRC,
+  },
+];
+
+const NOTE_POSITIONS = [
+  { angle: 0, radius: 232, glyph: "♪", size: "text-base", opacity: "text-white/70" },
+  { angle: 20, radius: 238, glyph: "♫", size: "text-base", opacity: "text-white/70" },
+  { angle: 40, radius: 244, glyph: "♩", size: "text-lg", opacity: "text-white/70" },
+  { angle: 60, radius: 250, glyph: "♪", size: "text-base", opacity: "text-white/60" },
+  { angle: 80, radius: 256, glyph: "♫", size: "text-lg", opacity: "text-white/60" },
+  { angle: 100, radius: 262, glyph: "♪", size: "text-base", opacity: "text-white/60" },
+  { angle: 120, radius: 268, glyph: "♩", size: "text-base", opacity: "text-white/60" },
+  { angle: 140, radius: 274, glyph: "♫", size: "text-lg", opacity: "text-white/60" },
+  { angle: 160, radius: 280, glyph: "♪", size: "text-base", opacity: "text-white/50" },
+  { angle: 180, radius: 232, glyph: "♫", size: "text-base", opacity: "text-white/50" },
+  { angle: 200, radius: 238, glyph: "♪", size: "text-base", opacity: "text-white/50" },
+  { angle: 220, radius: 244, glyph: "♩", size: "text-lg", opacity: "text-white/50" },
+  { angle: 240, radius: 250, glyph: "♫", size: "text-base", opacity: "text-white/50" },
+  { angle: 260, radius: 256, glyph: "♪", size: "text-lg", opacity: "text-white/50" },
+  { angle: 280, radius: 262, glyph: "♩", size: "text-base", opacity: "text-white/40" },
+  { angle: 300, radius: 268, glyph: "♫", size: "text-lg", opacity: "text-white/40" },
+  { angle: 320, radius: 274, glyph: "♪", size: "text-base", opacity: "text-white/40" },
+  { angle: 340, radius: 280, glyph: "♩", size: "text-base", opacity: "text-white/40" },
+];
 
 export default function LandingPage() {
+  const [activeId, setActiveId] = useState<string>(INSTRUMENTS[0].id);
+  const [showPlaybackFallback, setShowPlaybackFallback] = useState(false);
+  const backgroundVideoRef = useRef<HTMLVideoElement | null>(null);
+  const previewVideoRef = useRef<HTMLVideoElement | null>(null);
+
+  const activeInstrument = useMemo(
+    () => INSTRUMENTS.find((instrument) => instrument.id === activeId) ?? null,
+    [activeId],
+  );
+
+  useEffect(() => {
+    const tryPlay = async () => {
+      const backgroundVideo = backgroundVideoRef.current;
+      const previewVideo = previewVideoRef.current;
+      if (!backgroundVideo || !previewVideo) {
+        return;
+      }
+      try {
+        await Promise.all([backgroundVideo.play(), previewVideo.play()]);
+        setShowPlaybackFallback(false);
+      } catch {
+        setShowPlaybackFallback(true);
+      }
+    };
+    void tryPlay();
+  }, []);
+
+  const handleManualPlayback = async () => {
+    const backgroundVideo = backgroundVideoRef.current;
+    const previewVideo = previewVideoRef.current;
+    if (!backgroundVideo || !previewVideo) {
+      return;
+    }
+    try {
+      await Promise.all([backgroundVideo.play(), previewVideo.play()]);
+      setShowPlaybackFallback(false);
+    } catch {
+      setShowPlaybackFallback(true);
+    }
+  };
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-zinc-950 text-zinc-100">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(251,146,60,0.2),transparent_45%),radial-gradient(circle_at_80%_70%,rgba(56,189,248,0.18),transparent_40%)]" />
+    <main className="relative min-h-screen w-full overflow-hidden bg-black text-white">
+      {/* Background video — uses > not /> so <source> is a valid child */}
+      <video
+        ref={backgroundVideoRef}
+        className="absolute inset-0 h-full w-full object-cover"
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="metadata"
+      >
+        <source src={VIDEO_SRC} type="video/mp4" />
+      </video>
 
-      <div className="relative z-10 mx-auto flex min-h-screen w-full max-w-6xl flex-col justify-between px-8 py-12 sm:px-14">
-        <header className="max-w-3xl space-y-4 pt-8">
-          <p className="text-xs uppercase tracking-[0.35em] text-orange-400">
-            Research Proposal
-          </p>
-          <h1 className="font-serif text-4xl uppercase tracking-[0.12em] sm:text-6xl">
-            Instrumental Morphology
-          </h1>
-          <p className="max-w-2xl text-sm leading-7 text-zinc-200/90">
-            A living-systems instrument research site connecting biology, sound,
-            fabrication, and feedback-driven design.
-          </p>
-        </header>
+      <div className="absolute inset-0 bg-black/45" />
 
-        <div className="flex items-end justify-between gap-6 pb-10">
-          <p className="max-w-xl text-sm leading-6 text-zinc-300/90">
-            Enter the project documentation and browse instruments, process,
-            methods, and research topics.
+      {/* Header */}
+      <header className="relative z-20 mx-auto w-full max-w-6xl px-8 pt-28">
+        <p className="text-xs uppercase tracking-[0.35em] text-white/60">
+          Research Proposal
+        </p>
+        <h1 className="mt-2 font-serif text-4xl uppercase tracking-[0.12em] text-white sm:text-5xl">
+          Instrumental Morphology
+        </h1>
+        <p className="mt-4 max-w-xl text-sm leading-6 text-white/70">
+          A living-systems instrument research site connecting biology, sound,
+          fabrication, and feedback-driven design.
+        </p>
+      </header>
+
+      {/* Circular instrument selector */}
+      <div className="relative mx-auto flex min-h-screen w-full max-w-6xl flex-col items-center justify-center px-8 py-24">
+        <div className="relative flex items-center justify-center">
+          <div className="relative flex h-[420px] w-[420px] items-center justify-center rounded-full border border-white/70">
+            <div className="absolute inset-10 z-20 rounded-full border border-white/70" />
+
+            {/* Radial lines from center to each note */}
+            <svg
+              className="pointer-events-none absolute inset-0 z-10 opacity-50"
+              viewBox="0 0 420 420"
+              fill="none"
+              stroke="rgba(255,255,255,0.6)"
+              strokeWidth="1"
+              aria-hidden="true"
+            >
+              {NOTE_POSITIONS.map((note, index) => {
+                const angleRad = (note.angle * Math.PI) / 180;
+                const x = 210 + Math.sin(angleRad) * note.radius;
+                const y = 210 - Math.cos(angleRad) * note.radius;
+                return (
+                  <line
+                    key={`note-line-${index}`}
+                    x1="210"
+                    y1="210"
+                    x2={x}
+                    y2={y}
+                    strokeLinecap="round"
+                  />
+                );
+              })}
+            </svg>
+
+            {/* Center preview video */}
+            <div className="relative z-30 h-[260px] w-[260px] overflow-hidden rounded-full border border-white/60">
+              <video
+                ref={previewVideoRef}
+                className="h-full w-full object-cover"
+                autoPlay
+                muted
+                loop
+                playsInline
+                preload="metadata"
+                key={activeInstrument?.videoSrc ?? VIDEO_SRC}
+              >
+                <source
+                  src={activeInstrument?.videoSrc ?? VIDEO_SRC}
+                  type="video/mp4"
+                />
+              </video>
+            </div>
+
+            {/* Radial instrument buttons */}
+            <button
+              type="button"
+              onClick={() => setActiveId("1")}
+              className={`absolute left-1/2 top-1/2 z-40 flex h-10 w-10 items-center justify-center rounded-full border border-white/80 text-xs transition-colors ${activeId === "1" ? "bg-white text-black" : "bg-transparent text-white"}`}
+              aria-pressed={activeId === "1"}
+              style={{
+                transform:
+                  "translate(-50%, -50%) rotate(10deg) translateY(-190px)",
+              }}
+            >
+              1
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveId("2")}
+              className={`absolute left-1/2 top-1/2 z-40 flex h-10 w-10 items-center justify-center rounded-full border border-white/80 text-xs transition-colors ${activeId === "2" ? "bg-white text-black" : "bg-transparent text-white"}`}
+              aria-pressed={activeId === "2"}
+              style={{
+                transform:
+                  "translate(-50%, -50%) rotate(40deg) translateY(-190px)",
+              }}
+            >
+              2
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveId("3")}
+              className={`absolute left-1/2 top-1/2 z-40 flex h-10 w-10 items-center justify-center rounded-full border border-white/80 text-xs transition-colors ${activeId === "3" ? "bg-white text-black" : "bg-transparent text-white"}`}
+              aria-pressed={activeId === "3"}
+              style={{
+                transform:
+                  "translate(-50%, -50%) rotate(70deg) translateY(-190px)",
+              }}
+            >
+              3
+            </button>
+
+            {/* Musical note glyphs around the circle */}
+            {NOTE_POSITIONS.map((note, index) => (
+              <span
+                key={`${note.glyph}-${index}`}
+                className={`absolute left-1/2 top-1/2 z-10 ${note.size} ${note.opacity}`}
+                style={{
+                  transform: `translate(-50%, -50%) rotate(${note.angle}deg) translateY(-${note.radius}px) rotate(-${note.angle}deg)`,
+                }}
+                aria-hidden="true"
+              >
+                {note.glyph}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Active instrument info */}
+        <div className="mt-14 flex max-w-xl flex-col items-center gap-3 text-center">
+          <span className="min-h-[20px] text-xs uppercase tracking-[0.35em]">
+            {activeInstrument?.title ?? ""}
+          </span>
+          <p className="text-sm leading-6 text-white/80">
+            {activeInstrument?.summary ?? ""}
           </p>
           <Link
-            href="/home"
-            className="whitespace-nowrap border border-zinc-200/50 px-6 py-3 text-xs uppercase tracking-[0.32em] text-zinc-100 transition hover:border-orange-300 hover:text-orange-200"
+            href={activeInstrument?.href ?? "/instruments"}
+            className="mt-2 inline-flex items-center justify-center rounded-full border border-white/70 px-6 py-2 text-xs uppercase tracking-[0.3em] text-white transition hover:bg-white hover:text-black"
           >
-            Enter
+            Explore
           </Link>
         </div>
       </div>
+
+      {/* Fallback play button for browsers that block autoplay */}
+      {showPlaybackFallback ? (
+        <button
+          type="button"
+          onClick={handleManualPlayback}
+          className="fixed bottom-6 right-6 z-50 rounded-full border border-white/80 bg-black/70 px-5 py-2 text-xs uppercase tracking-[0.18em] text-white transition hover:bg-white hover:text-black"
+        >
+          Play Video
+        </button>
+      ) : null}
     </main>
   );
 }
