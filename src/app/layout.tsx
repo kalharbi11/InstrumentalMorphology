@@ -14,9 +14,21 @@ const displaySerif = Cormorant_Garamond({
   weight: ["400", "500", "600"],
 });
 
-export const metadata = {
+eimport type { Metadata } from "next";
+
+export const metadata: Metadata = {
   title: "Instrumental Morphology",
-  description: "A living-systems instrument research site connecting biology, sound, and feedback-driven design.",
+  description:
+    "A living-systems instrument research site connecting biology, sound, fabrication, and feedback-driven design.",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "48x48" },
+      { url: "/icon-32x32.png", sizes: "32x32", type: "image/png" },
+    ],
+    apple: [
+      { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
 };
 
 export default function RootLayout({
