@@ -14,8 +14,6 @@ const displaySerif = Cormorant_Garamond({
   weight: ["400", "500", "600"],
 });
 
-import type { Metadata } from "next";
-
 export const metadata: Metadata = {
   title: "Instrumental Morphology",
   description:
@@ -23,11 +21,12 @@ export const metadata: Metadata = {
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "48x48" },
-      { url: "/icon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icon.svg", type: "image/svg+xml" },
     ],
     apple: [
       { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
     ],
+    shortcut: ["/favicon.ico"],
   },
 };
 
