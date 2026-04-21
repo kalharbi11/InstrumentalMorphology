@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 const VIDEO_SRC = "/assets/video/MVI_9910.mp4";
 
@@ -55,21 +55,61 @@ const NOTE_POSITIONS = [
 
 export default function InstrumentsPage() {
   const [activeId, setActiveId] = useState<string>(INSTRUMENTS[0].id);
+  const [showPlaybackFallback, setShowPlaybackFallback] = useState(false);
+  const backgroundVideoRef = useRef<HTMLVideoElement | null>(null);
+  const previewVideoRef = useRef<HTMLVideoElement | null>(null);
   const activeInstrument = useMemo(
     () => INSTRUMENTS.find((instrument) => instrument.id === activeId) ?? null,
     [activeId],
   );
 
+  useEffect(() => {
+    const tryPlay = async () => {
+      const backgroundVideo = backgroundVideoRef.current;
+      const previewVideo = previewVideoRef.current;
+      if (!backgroundVideo || !previewVideo) {
+        return;
+      }
+
+      try {
+        await Promise.all([backgroundVideo.play(), previewVideo.play()]);
+        setShowPlaybackFallback(false);
+      } catch {
+        setShowPlaybackFallback(true);
+      }
+    };
+
+    void tryPlay();
+  }, []);
+
+  const handleManualPlayback = async () => {
+    const backgroundVideo = backgroundVideoRef.current;
+    const previewVideo = previewVideoRef.current;
+    if (!backgroundVideo || !previewVideo) {
+      return;
+    }
+
+    try {
+      await Promise.all([backgroundVideo.play(), previewVideo.play()]);
+      setShowPlaybackFallback(false);
+    } catch {
+      setShowPlaybackFallback(true);
+    }
+  };
+
   return (
     <main className="relative min-h-screen w-full overflow-hidden bg-black text-white">
       <video
+        ref={backgroundVideoRef}
         className="absolute inset-0 h-full w-full object-cover"
-        src={VIDEO_SRC}
         autoPlay
         muted
         loop
         playsInline
+        preload="metadata"
       />
+        <source src={VIDEO_SRC} type="video/mp4" />
+      </video>
       <div className="absolute inset-0 bg-black/45" />
 
       <header className="relative z-20 mx-auto w-full max-w-6xl px-8 pt-28">
@@ -110,13 +150,17 @@ export default function InstrumentsPage() {
 
             <div className="relative z-30 h-[260px] w-[260px] overflow-hidden rounded-full border border-white/60">
               <video
+                ref={previewVideoRef}
                 className="h-full w-full object-cover"
-                src={activeInstrument?.videoSrc ?? VIDEO_SRC}
                 autoPlay
                 muted
                 loop
                 playsInline
+                preload="metadata"
+                key={activeInstrument?.videoSrc ?? VIDEO_SRC}
               />
+                <source src={activeInstrument?.videoSrc ?? VIDEO_SRC} type="video/mp4" />
+              </video>
             </div>
 
             <button
@@ -177,6 +221,16 @@ export default function InstrumentsPage() {
           </Link>
         </div>
       </div>
+
+      {showPlaybackFallback ? (
+        <button
+          type="button"
+          onClick={handleManualPlayback}
+          className="fixed bottom-6 right-6 z-50 rounded-full border border-white/80 bg-black/70 px-5 py-2 text-xs uppercase tracking-[0.18em] text-white transition hover:bg-white hover:text-black"
+        >
+          Play Video
+        </button>
+      ) : null}
     </main>
   );
 }
