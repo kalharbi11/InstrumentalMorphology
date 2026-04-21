@@ -14,7 +14,7 @@ const displaySerif = Cormorant_Garamond({
   weight: ["400", "500", "600"],
 });
 
-eimport type { Metadata } from "next";
+import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "Instrumental Morphology",
